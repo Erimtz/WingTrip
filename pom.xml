@@ -30,6 +30,7 @@
 		</dependencies>
 	</dependencyManagement>
     <modules>
+		<module>api-account</module>
 		<module>api-gateway</module>
 		<module>eureka-server</module>
 		<module>config-server</module>
