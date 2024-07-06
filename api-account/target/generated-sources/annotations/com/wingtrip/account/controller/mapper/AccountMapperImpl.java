@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-06-28T18:31:57-0600",
+    date = "2024-07-05T19:41:15-0600",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 20.0.1 (Oracle Corporation)"
 )
 @Component
@@ -24,19 +24,25 @@ public class AccountMapperImpl implements AccountMapper {
 
         accountDTO.setAccountId( request.getAccountId() );
         accountDTO.setDocument( request.getDocument() );
+        accountDTO.setUser( request.getUser() );
         accountDTO.setBookingId( request.getBookingId() );
 
         return accountDTO;
     }
 
     @Override
-    public AccountResponse toResponse(AccountDTO accountResponse) {
-        if ( accountResponse == null ) {
+    public AccountResponse toResponse(AccountDTO accountDTO) {
+        if ( accountDTO == null ) {
             return null;
         }
 
-        AccountResponse accountResponse1 = new AccountResponse();
+        AccountResponse accountResponse = new AccountResponse();
 
-        return accountResponse1;
+        accountResponse.setAccountId( accountDTO.getAccountId() );
+        accountResponse.setDocument( accountDTO.getDocument() );
+        accountResponse.setUser( accountDTO.getUser() );
+        accountResponse.setBookingId( accountDTO.getBookingId() );
+
+        return accountResponse;
     }
 }

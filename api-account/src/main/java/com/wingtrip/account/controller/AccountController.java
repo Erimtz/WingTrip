@@ -10,12 +10,13 @@ import com.wingtrip.account.service.impl.AccountServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
+@Slf4j
 @Tag(name = "Account API", description = "API for managing accounts")
 @RequiredArgsConstructor
 @RestController
@@ -35,48 +36,60 @@ public class AccountController  {
     @Operation(summary = "Create new account")
     @PostMapping("/create")
     public ResponseEntity<AccountResponse> createAccount(@RequestBody AccountRequest request) throws AccountException {
+        log.info("Received request to create account with data: {}", request);
 
         AccountDTO dtoToRequest = accountMapper.dtoToRequest(request);
+        AccountDTO createdAccount = accountServiceImpl.createAccount(dtoToRequest);
+        AccountResponse accountResponse = accountMapper.toResponse(createdAccount);
+        accountResponse.setMessage("Account created successfully");
 
-        AccountDTO accountDTO1 = accountServiceImpl.createAccount(dtoToRequest);
-
-        AccountResponse accountResponse = accountMapper.toResponse(accountDTO1);
+        log.info("Created account successfully with data: {}", accountResponse);
         return ResponseEntity.ok(accountResponse);
+
     }
 
     @Operation(summary = "Search account by user ID")
     @GetMapping("/get/user/{id}")
-    public ResponseEntity<AccountResponse> findByUserId(@PathVariable Long userId) throws AccountException {
-        Optional<AccountDTO> accountDTO = accountServiceImpl.findByUserId(userId);
-
+    public ResponseEntity<AccountResponse> findByUserId(@PathVariable Long id) throws AccountException {
+        //Optional<AccountDTO> accountDTO = accountServiceImpl.findByUserId(id);
+        AccountDTO accountDTO = accountServiceImpl.findByUserId(id);
         AccountResponse accountResponse = accountMapper.toResponse(accountDTO);
+        accountResponse.setMessage("Find by user ID successfully with ID: " + id);
+
+        log.info("Find by user ID successfully with data: {}", accountResponse);
         return ResponseEntity.ok(accountResponse);
     }
 
     @Operation(summary = "Search account by booking ID")
     @GetMapping("/get/booking/{id}")
-    public ResponseEntity<AccountResponse> findByBookingId(@PathVariable Long bookingId) throws AccountException {
-        Optional<AccountDTO> accountDTO = accountServiceImpl.findByBookingId(bookingId);
-
+    public ResponseEntity<AccountResponse> findByBookingId(@PathVariable Long id) throws AccountException {
+        //Optional<AccountDTO> accountDTO = accountServiceImpl.findByBookingId(id);
+        AccountDTO accountDTO = accountServiceImpl.findByBookingId(id);
         AccountResponse accountResponse = accountMapper.toResponse(accountDTO);
+        accountResponse.setMessage("Find by booking ID successfully with ID: " + id);
+
+        log.info("Find by booking ID successfully with data: {}", accountResponse);
         return ResponseEntity.ok(accountResponse);
     }
 
     @Operation(summary = "Update account by user ID")
     @PutMapping("/update/{id}")
-    public ResponseEntity<AccountResponse> updateAccount(@PathVariable Long userId, @RequestBody AccountRequest request) throws AccountException {
-        AccountDTO accountDTO1 = accountServiceImpl.updateAccount(userId, request);
+    public ResponseEntity<AccountResponse> updateAccount(@PathVariable Long id, @RequestBody AccountRequest request) throws AccountException {
+        AccountDTO updateAccount = accountServiceImpl.updateAccount(id, request);
+        AccountResponse accountResponse = accountMapper.toResponse(updateAccount);
+        accountResponse.setMessage("Update account successfully with ID: " + id);
 
-        AccountResponse accountResponse = accountMapper.toResponse(accountDTO1);
+        log.info("Update account successfully with data: {}", accountResponse);
         return ResponseEntity.ok(accountResponse);
     }
 
     @Operation(summary = "Delete account by user ID")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity deleteByUserId(@PathVariable Long userId) throws AccountException {
-        boolean isDeleted = accountServiceImpl.deleteByUserId(userId);
+    public ResponseEntity deleteByUserId(@PathVariable Long id) throws AccountException {
+        boolean isDeleted = accountServiceImpl.deleteByUserId(id);
 
         if (isDeleted) {
+            log.info("Delete by user ID successfully with data: {}", id);
             return ResponseEntity.noContent().build();
         } else throw  new AccountException(MessageCode.ACCOUNT_BOOKING_NOT_FOUND);
     }

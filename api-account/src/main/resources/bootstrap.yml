@@ -5,6 +5,15 @@ spring:
     config:
       enabled: true
       uri: http://localhost:8888
+  logging:
+    level:
+      org.hibernate.SQL: DEBUG
+      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+    deserialization:
+      FAIL_ON_UNKNOWN_PROPERTIES: false
 
 spring-doc:
   api-docs:

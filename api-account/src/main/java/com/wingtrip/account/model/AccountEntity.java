@@ -15,16 +15,17 @@ import lombok.NoArgsConstructor;
 public class AccountEntity {
 
     @Id
-    @Column(name = "accountId")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "account_id")
     private Long accountId;
 
     @Column(name = "document")
     private String document;
 
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "bookingId")
+    @Column(name = "booking_id")
     private Long bookingId;
 
 }

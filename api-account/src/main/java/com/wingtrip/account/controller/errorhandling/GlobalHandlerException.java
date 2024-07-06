@@ -24,11 +24,11 @@ public class GlobalHandlerException {
     public ResponseEntity<Map<String, Object>> errorHandler(HttpServletRequest req, Exception ex) {
         Map<String, Object> result = new HashMap<>();
         result.put(TIMESTAMP, DateTimeUtil.now().toEpochDay());
-        result.put(STATUS, HttpStatus.NOT_FOUND.value());
+        result.put(STATUS, HttpStatus.INTERNAL_SERVER_ERROR.value());
         result.put(ERROR, ex.getMessage());
         result.put(PATH, new UrlPathHelper().getPathWithinApplication(req));
         log.error(ERROR + ex.getMessage());
 
-        return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

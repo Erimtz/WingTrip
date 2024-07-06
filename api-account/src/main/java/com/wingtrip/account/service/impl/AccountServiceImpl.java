@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @RequiredArgsConstructor
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -23,7 +24,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<AccountDTO> getAllAccounts() {
         return accountRepository.findAll().stream()
-                .map(this::toConvert)
+                .map(AccountDTO::new)
                 .collect(Collectors.toList());
     }
 
@@ -31,50 +32,47 @@ public class AccountServiceImpl implements AccountService {
     public AccountDTO createAccount(AccountDTO accountDTO) throws AccountException {
         try {
             AccountEntity accountEntity = AccountEntity.builder()
-                    .accountId(accountDTO.getAccountId())
                     .document(accountDTO.getDocument())
                     .userId(accountDTO.getUser().getId())
+                    .bookingId(accountDTO.getBookingId())
                     .build();
-            accountRepository.save(accountEntity);
-            return toConvert(accountEntity);
+            AccountEntity saveEntity = accountRepository.save(accountEntity);
+            // Llamar al microservicio de `api-user` para obtener los detalles del usuario completo
+            // utilizando Feign Client o RestTemplate y asignar los detalles del usuario completo al DTO.
+
+            return new AccountDTO(saveEntity);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new AccountException(MessageCode.ACCOUNT_NOT_CREATE);
         }
     }
 
     @Override
-    public Optional<AccountDTO> findByUserId(Long userId) throws AccountException {
+    public AccountDTO findByUserId(Long userId) throws AccountException {
         if (userId == null) {
             throw new AccountException(MessageCode.ACCOUNT_NULL);
         }
 
         Optional<AccountEntity> entityOptional = accountRepository.findById(userId);
         if (entityOptional.isPresent() ) {
-            AccountEntity accountEntity = entityOptional.get();
-            accountEntity.setUserId(userId);
-            accountRepository.save(accountEntity);
+            return new AccountDTO(entityOptional.get());
         } else {
             throw new AccountException(MessageCode.ACCOUNT_NOT_EXIST);
         }
-        return Optional.of(new AccountDTO(entityOptional));
     }
 
     @Override
-    public Optional<AccountDTO> findByBookingId(Long bookingId) throws AccountException {
+    public AccountDTO findByBookingId(Long bookingId) throws AccountException {
         if (bookingId == null) {
             throw new AccountException(MessageCode.ACCOUNT_NULL);
         }
 
         Optional<AccountEntity> optionalAccount = accountRepository.findById(bookingId);
         if (optionalAccount.isPresent()) {
-            AccountEntity accountEntity = optionalAccount.get();
-            accountEntity.setBookingId(bookingId);
-            accountRepository.save(accountEntity);
+            return new AccountDTO(optionalAccount.get());
         } else {
             throw new AccountException(MessageCode.ACCOUNT_NOT_FOUND);
         }
-
-        return Optional.of(new AccountDTO(optionalAccount));
     }
 
     @Override
@@ -83,20 +81,18 @@ public class AccountServiceImpl implements AccountService {
             throw new AccountException(MessageCode.ACCOUNT_NULL);
         }
 
-        assert userId != null;
         Optional<AccountEntity> accountEntity = accountRepository.findById(userId);
         if (accountEntity.isEmpty()) {
             throw new AccountException(MessageCode.ACCOUNT_NOT_FOUND);
         }
 
         AccountEntity accountEntity1 = accountEntity.get();
-        accountEntity1.setAccountId(accountEntity1.getAccountId());
-        accountEntity1.setDocument(accountEntity1.getDocument());
-        accountEntity1.setUserId(accountEntity1.getUserId());
+        accountEntity1.setDocument(accountRequest.getDocument());
+        accountEntity1.setUserId(accountRequest.getUser().getId());
+        accountEntity1.setBookingId(accountRequest.getBookingId());
 
-        accountEntity = Optional.of(accountRepository.save(accountEntity1));
-
-        return new AccountDTO(accountEntity);
+        AccountEntity updateEntity = accountRepository.save(accountEntity1);
+        return new AccountDTO(updateEntity);
     }
 
     @Override
@@ -111,14 +107,5 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             throw new AccountException(MessageCode.ACCOUNT_DELETE_FAILED);
         }
-    }
-
-    @Override
-    public AccountDTO toConvert(AccountEntity accountEntity) {
-        return new AccountDTO(
-                accountEntity.getAccountId(),
-                accountEntity.getDocument(),
-                accountEntity.getUserId()
-        );
     }
 }
