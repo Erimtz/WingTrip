@@ -30,6 +30,12 @@
         </processorPath>
         <module name="api-gateway" />
       </profile>
+      <profile name="Annotation profile for api-user" enabled="true">
+        <sourceOutputDir name="../target/generated-sources/annotations" />
+        <sourceTestOutputDir name="../target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="api-user" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="api-booking" target="17" />
@@ -37,7 +43,6 @@
       <module name="api-flight-detail" target="17" />
       <module name="api-payment" target="17" />
       <module name="api-seat" target="17" />
-      <module name="api-user" target="17" />
       <module name="WingTrip" target="1.5" />
     </bytecodeTargetLevel>
   </component>
@@ -50,7 +55,7 @@
       <module name="api-gateway" options="-parameters" />
       <module name="api-payment" options="-parameters" />
       <module name="api-seat" options="-parameters" />
-      <module name="api-user" options="-parameters" />
+      <module name="api-user" options="" />
       <module name="config-server" options="-parameters" />
       <module name="eureka-server" options="-parameters" />
       <module name="wingTrip" options="" />
