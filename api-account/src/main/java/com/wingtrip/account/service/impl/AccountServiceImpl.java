@@ -67,11 +67,12 @@ public class AccountServiceImpl implements AccountService {
             throw new AccountException(MessageCode.ACCOUNT_NULL);
         }
 
-        Optional<AccountEntity> optionalAccount = accountRepository.findById(bookingId);
-        if (optionalAccount.isPresent()) {
-            return new AccountDTO(optionalAccount.get());
-        } else {
+        Optional<AccountEntity> optionalAccount = accountRepository.findByBookingId(bookingId);
+        if (optionalAccount.isEmpty()) {
             throw new AccountException(MessageCode.ACCOUNT_NOT_FOUND);
+        } else {
+            AccountEntity accountEntity = optionalAccount.get();
+            return new AccountDTO(accountEntity);
         }
     }
 

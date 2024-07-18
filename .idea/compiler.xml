@@ -21,6 +21,17 @@
         </processorPath>
         <module name="api-account" />
       </profile>
+      <profile name="Annotation profile for api-user" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.3.Final/mapstruct-processor-1.5.3.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.3.Final/mapstruct-1.5.3.Final.jar" />
+        </processorPath>
+        <module name="api-user" />
+      </profile>
       <profile name="Annotation profile for wingTrip" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -29,12 +40,6 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.20/lombok-1.18.20.jar" />
         </processorPath>
         <module name="api-gateway" />
-      </profile>
-      <profile name="Annotation profile for api-user" enabled="true">
-        <sourceOutputDir name="../target/generated-sources/annotations" />
-        <sourceTestOutputDir name="../target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="api-user" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -55,7 +60,7 @@
       <module name="api-gateway" options="-parameters" />
       <module name="api-payment" options="-parameters" />
       <module name="api-seat" options="-parameters" />
-      <module name="api-user" options="" />
+      <module name="api-user" options="-parameters" />
       <module name="config-server" options="-parameters" />
       <module name="eureka-server" options="-parameters" />
       <module name="wingTrip" options="" />
