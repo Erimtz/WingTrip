@@ -9,6 +9,8 @@ public enum MessageCode {
 
     USER_NOT_FOUND("The user not found."),
     USER_ID_NOT_FOUND("The id for user not found."),
+    USER_NOT_CREATE("The user was not created correctly."),
+    USER_NOT_EXIST("The user does not exist"),
     EMAIL_USER_NOT_FOUND("The email not found."),
     EMAIL_CREATE_BEFORE("The email has been create before."),
     USERNAME_NOT_FOUND("The username not found."),

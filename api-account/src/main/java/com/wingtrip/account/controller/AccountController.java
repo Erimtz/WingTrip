@@ -51,7 +51,6 @@ public class AccountController  {
     @Operation(summary = "Search account by user ID")
     @GetMapping("/get/user/{id}")
     public ResponseEntity<AccountResponse> findByUserId(@PathVariable Long id) throws AccountException {
-        //Optional<AccountDTO> accountDTO = accountServiceImpl.findByUserId(id);
         AccountDTO accountDTO = accountServiceImpl.findByUserId(id);
         AccountResponse accountResponse = accountMapper.toResponse(accountDTO);
         accountResponse.setMessage("Find by user ID successfully with ID: " + id);
@@ -63,7 +62,6 @@ public class AccountController  {
     @Operation(summary = "Search account by booking ID")
     @GetMapping("/get/booking/{id}")
     public ResponseEntity<AccountResponse> findByBookingId(@PathVariable Long id) throws AccountException {
-        //Optional<AccountDTO> accountDTO = accountServiceImpl.findByBookingId(id);
         AccountDTO accountDTO = accountServiceImpl.findByBookingId(id);
         AccountResponse accountResponse = accountMapper.toResponse(accountDTO);
         accountResponse.setMessage("Find by booking ID successfully with ID: " + id);

@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Optional;
-
 
 @Data
 @AllArgsConstructor
@@ -15,37 +13,20 @@ import java.util.Optional;
 public class UserDTO {
 
     private Long id;
-
     private String name;
-
-    private  String lastname;
-
+    private String lastname;
     private String address;
-
     private String email;
-
     private String username;
-
     private String password;
 
     public UserDTO(UserEntity userEntity) {
+        this.id = userEntity.getUserId();
+        this.name = userEntity.getName();
+        this.lastname = userEntity.getLastname();
+        this.address = userEntity.getAddress();
+        this.email = userEntity.getEmail();
+        this.username = userEntity.getUsername();
+        this.password = userEntity.getPassword();
     }
-
-    public UserDTO(Optional<UserEntity> optionalUserId) {
-    }
-
-
-    public UserEntity toEntity() {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUserId(id);
-        userEntity.setName(name);
-        userEntity.setLastname(lastname);
-        userEntity.setEmail(email);
-        userEntity.setAddress(address);
-        userEntity.setUsername(username);
-        userEntity.setPassword(password);
-
-        return userEntity;
-    }
-
 }

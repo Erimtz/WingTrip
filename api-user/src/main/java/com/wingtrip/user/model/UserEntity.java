@@ -1,11 +1,10 @@
 package com.wingtrip.user.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
@@ -14,9 +13,10 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "user")
 public class UserEntity {
-    @Column(name = "userId")
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long userId;
 
     @Column(name = "name")
@@ -28,14 +28,10 @@ public class UserEntity {
     @Column(name = "address")
     private String address;
 
-    @Column(unique = true)
-    @NotBlank
-    @Size(max = 80)
+    @Column(name = "email")
     private String email;
 
-    @Column(unique = true)
-    @NotBlank
-    @Size(max = 30)
+    @Column(name = "username")
     private String username;
 
     @Column(name = "password")
