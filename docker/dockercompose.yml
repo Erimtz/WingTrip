@@ -1,45 +1,62 @@
-version: '3.3'
+version: '3.8'
+
 services:
-  mysql:
-    image: mysql:5.7
-    restart: always
+  mysql-account:
+    image: mysql:8.0
+    container_name: mysql-account
     environment:
-      MYSQL_DATABASE: 'movie-dev'
-      MYSQL_USER: 'usr-movie'
-      MYSQL_PASSWORD: 'pwd-movie'
-      MYSQL_ROOT_PASSWORD: 'password'
-    networks:
-      - app-network
+      MYSQL_ROOT_PASSWORD: 'rootpassword'
+      MYSQL_DATABASE: 'account_db'
+      MYSQL_USER: ${DATABASE_USERNAME}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
     ports:
-      # <Port exposed> : < MySQL Port running inside container>
-      - '3307:3308'
+      - '3307:3306'
     expose:
-      # Opens port 3308 on the container
+      - '3307'
+    volumes:
+      - mysql-account-data:/var/lib/mysql
+    env_file:
+      - .env
+
+  mysql-user:
+    image: mysql:8.0
+    container_name: mysql-user
+    environment:
+      MYSQL_ROOT_PASSWORD: 'rootpassword'
+      MYSQL_DATABASE: 'user_db'
+      MYSQL_USER: ${DATABASE_USERNAME}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - '3308:3306'
+    expose:
       - '3308'
-      # Where our data will be persisted
+    volumes:
+      - mysql-user-data:/var/lib/mysql
+    env_file:
+      - .env
 
-  zipkin-server-container:
-    image: openzipkin/zipkin-slim
-    container_name: zipkin-server-container
+  api-account:
+    image: mysql:8.0
     environment:
-      - STORAGE_TYPE=mem
-    ports:
-      - "9411:9411"
-    expose:
-      - 9411
+      DATABASE_URL: jdbc:mysql://mysql-account:3306/account_db
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
     depends_on:
-      - storage-aux-container
-  storage-aux-container:
-    image: busybox:1.31.0
-    container_name: storage-aux-container
-  rabbitmq-container:
-    image: rabbitmq:3-management
-    container_name: rabbitmq-container
-    hostname: localhost
+      - mysql-account
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "8086:8086"
 
-networks:
-  app-network:
-    driver: bridge
+  api-user:
+    image: mysql:8.0
+    environment:
+      DATABASE_URL: jdbc:mysql://mysql-user:3306/user_db
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    depends_on:
+      - mysql-user
+    ports:
+      - "8087:8087"
+
+volumes:
+  mysql-account-data:
+  mysql-user-data:
