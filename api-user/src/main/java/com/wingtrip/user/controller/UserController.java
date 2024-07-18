@@ -8,18 +8,20 @@ import com.wingtrip.user.exception.MessageCode;
 import com.wingtrip.user.exception.UserException;
 import com.wingtrip.user.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.transaction.Transactional;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
+@Slf4j
+@Tag(name = "User API", description = "API for managing users")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(name = "/api/v1/user")
+@RequestMapping(path = "/api/v1/user")
 public class UserController {
 
     private final UserMapper userMapper;
@@ -29,70 +31,81 @@ public class UserController {
     @Operation(summary= "Get all the users")
     @GetMapping("/get-all")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
-
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @Transactional
     @Operation(summary= "Created new user")
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(@Valid @RequestBody UserRequest userRequest) throws UserException {
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) throws UserException {
            //Mappear de request a dto
-            UserDTO userRequestToDto = userMapper.toUser(userRequest);
+            UserDTO dtoToRequest = userMapper.toRequest(userRequest);
 
-            if (userService.existByEmail(userRequestToDto.getEmail())) {
+            log.info("Checking if email exists {}:", dtoToRequest.getEmail());
+            if (userService.existByEmail(dtoToRequest.getEmail())) {
                 throw new UserException(MessageCode.EMAIL_CREATE_BEFORE);
             }
 
-            if (userService.existByUsername(userRequestToDto.getUsername())) {
+            if (userService.existByUsername(dtoToRequest.getUsername())) {
                 throw new UserException(MessageCode.USERNAME_CREATE_BEFORE);
             }
-            UserDTO userEntity1 = userService.createUser(userRequestToDto);
+            UserDTO createdUser = userService.createUser(dtoToRequest);
+            UserResponse userResponse = userMapper.toResponse(createdUser);
+            userResponse.setMessage("¡Created user successfully!");
 
-            return ResponseEntity.ok(userEntity1.getUsername()+  "tu usuario se creo bien!");
+            log.info("Created user successfully with data: {}", userResponse);
+            return ResponseEntity.ok(userResponse);
     }
 
     @Operation(summary= "Search user by username")
     @GetMapping("/profile/{username}")
     public ResponseEntity<UserResponse> findByUsername(@PathVariable String username) throws UserException {
-            Optional<UserDTO> toRequest = userService.findByUsername(username);
+            UserDTO userDTO = userService.findByUsername(username);
+            UserResponse userResponse = userMapper.toResponse(userDTO);
+            userResponse.setMessage("Find user successfully with username: " + username);
 
-            UserResponse userResponse = userMapper.toResponse(toRequest);
+            log.info("Find user by username successfully with data: {}" + userResponse);
             return ResponseEntity.ok(userResponse);
     }
 
     @Operation(summary= "Search user by ID")
     @GetMapping("/get/{id}")
-    public ResponseEntity<UserResponse> findUserById(@PathVariable Long userId) throws UserException {
-            Optional<UserDTO> toRequest = userService.findUserById(userId);
+    public ResponseEntity<UserResponse> findUserById(@PathVariable Long id) throws UserException {
+            UserDTO userDTO = userService.findUserById(id);
+            UserResponse userResponse = userMapper.toResponse(userDTO);
+            userResponse.setMessage("Find user by ID successfully with ID: " + id);
 
-            UserResponse userResponse = userMapper.toResponse(toRequest);
+            log.info("Find user by ID successfully with data: {}", userResponse);
             return  ResponseEntity.ok(userResponse);
     }
     @Operation(summary= "Update the user by username")
-    @PutMapping("/update/{username}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable  String username, @RequestBody UserRequest userRequest) throws UserException {
-            UserDTO toRequest = userService.updateUserEntity(username, userRequest);
+    @PutMapping("/update/username/{username}")
+    public ResponseEntity<UserResponse> updateUserByUsername(@PathVariable  String username, @RequestBody UserRequest userRequest) throws UserException {
+            UserDTO updateUser = userService.updateUserByUsername(username, userRequest);
+            UserResponse userResponse = userMapper.toResponse(updateUser);
+            userResponse.setMessage("Update user successfully with username: " + username);
 
-            UserResponse userResponse = userMapper.toResponse(toRequest);
+            log.info("Update account successfully with data: {}", username);
             return ResponseEntity.ok(userResponse);
     }
 
     @Operation(summary = "Update the user by ID")
-    @PutMapping("/update/{id}")
-    public ResponseEntity<UserResponse> updateUserById(@PathVariable Long userId) throws UserException {
-        UserDTO toRequest = userService.updateUserById(userId);
-
+    @PutMapping("/update/id/{id}")
+    public ResponseEntity<UserResponse> updateUserById(@PathVariable Long id, @RequestBody UserRequest userRequest) throws UserException {
+        UserDTO toRequest = userService.updateUserById(id, userRequest);
         UserResponse userResponse = userMapper.toResponse(toRequest);
+        userResponse.setMessage("Update user by ID successfully with ID: " + id);
+
+        log.info("Update user by ID account successfullyu with data: {}" + userResponse);
         return ResponseEntity.ok(userResponse);
     }
 
     @Operation(summary= "Delete user by ID")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity deleteUserById(@PathVariable Long userId) throws UserException {
-            boolean isDeleted = userService.deleteUserById(userId);
+    public ResponseEntity deleteUserById(@PathVariable Long id) throws UserException {
+            boolean isDeleted = userService.deleteUserById(id);
 
             if (isDeleted) {
+                log.info("Delete by user ID successfully with data: {}", id);
                 return ResponseEntity.noContent().build();
             } else {
                 throw new UserException(MessageCode.USER_DELETE_FAILED);

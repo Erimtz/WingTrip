@@ -7,7 +7,6 @@ import com.wingtrip.user.exception.UserException;
 import com.wingtrip.user.model.UserEntity;
 import com.wingtrip.user.repository.UserRepository;
 import com.wingtrip.user.service.UserService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +23,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(this::convertTo)
+                .map(UserDTO::new)
                 .collect(Collectors.toList());
     }
-    @Transactional
+
     @Override
     public UserDTO createUser(UserDTO userDTO) throws UserException {
         try {
@@ -39,37 +38,45 @@ public class UserServiceImpl implements UserService {
                     .username(userDTO.getUsername())
                     .password(userDTO.getPassword())
                     .build();
-            userRepository.save(userEntity);
-            return convertTo(userEntity);
+            UserEntity saveEntity = userRepository.save(userEntity);
+            return new UserDTO(saveEntity);
         } catch (Exception e) {
-            throw new UserException(MessageCode.USER_NOT_FOUND);
+            e.printStackTrace();
+            throw new UserException(MessageCode.USER_NOT_CREATE);
         }
     }
 
     @Override
-    public Optional<UserDTO> findByUsername(String username) throws UserException {
+    public UserDTO findByUsername(String username) throws UserException {
         if (username == null) {
             throw new UserException(MessageCode.USERNAME_NULL);
+        }
+
+        Optional<UserEntity> entityOptional = userRepository.findByUsername(username);
+        if (entityOptional.isPresent()) {
+            return new UserDTO(entityOptional.get());
         } else {
-            return userRepository.findByUsername(username);
+            throw new UserException(MessageCode.USER_NOT_EXIST);
         }
     }
 
     @Override
-    public Optional<UserDTO> findUserById(Long userId) throws UserException {
+    public UserDTO findUserById(Long userId) throws UserException {
         if (userId == null) {
             throw new UserException(MessageCode.USER_ID_NOT_FOUND);
         }
 
-        Optional<UserEntity> optionalUser1 = userRepository.findById(userId);
-        if (optionalUser1.isEmpty()) {
+        Optional<UserEntity> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
             throw new UserException(MessageCode.USER_ID_NOT_FOUND);
         }
-        return Optional.of(new UserDTO(optionalUser1));
+
+        UserEntity userEntity = optionalUser.get();
+        return new UserDTO(userEntity);
     }
 
     @Override
-    public UserDTO updateUserById(Long userId) throws UserException {
+    public UserDTO updateUserById(Long userId, UserRequest userRequest) throws UserException {
         if (userId == null) {
             throw new UserException(MessageCode.USERNAME_NULL);
         }
@@ -80,37 +87,40 @@ public class UserServiceImpl implements UserService {
         }
 
         UserEntity userEntity = optionalUser.get();
-        userEntity.setName(userEntity.getName());
-        userEntity.setLastname(userEntity.getLastname());
-        userEntity.setEmail(userEntity.getEmail());
-        userEntity.setUsername(userEntity.getUsername());
-        userEntity.setPassword(userEntity.getPassword());
-        userEntity.setAddress(userEntity.getAddress());
+        userEntity.setName(userRequest.getName());
+        userEntity.setLastname(userRequest.getLastname());
+        userEntity.setEmail(userRequest.getEmail());
+        userEntity.setUsername(userRequest.getUsername());
+        userEntity.setPassword(userRequest.getPassword());
+        userEntity.setAddress(userRequest.getAddress());
 
-        userRepository.save(userEntity);
+        UserEntity userEntity1 = userRepository.save(userEntity);
 
 
-        return convertTo(userEntity);
+        return new UserDTO(userEntity1);
     }
 
     @Override
-    public UserDTO updateUserEntity(String username, UserRequest userRequest) throws UserException {
+    public UserDTO updateUserByUsername(String username, UserRequest userRequest) throws UserException {
         if (username == null) {
             throw new UserException(MessageCode.USERNAME_NULL);
         }
 
-        Optional<UserDTO> userEntity = userRepository.findByUsername(username);
+        Optional<UserEntity> userEntity = userRepository.findByUsername(username);
         if (userEntity.isEmpty()) {
             throw new UserException(MessageCode.USER_NOT_FOUND);
         }
 
-        UserEntity userEntity1 = userEntity.get().toEntity();
-
+        UserEntity userEntity1 = userEntity.get();
+        userEntity1.setName(userRequest.getName());
+        userEntity1.setLastname(userRequest.getLastname());
+        userEntity1.setEmail(userRequest.getEmail());
         userEntity1.setUsername(userRequest.getUsername());
         userEntity1.setPassword(userRequest.getPassword());
-        userRepository.save(userEntity1);
 
-        return new UserDTO(userEntity1);
+        UserEntity updateEntity = userRepository.save(userEntity1);
+
+        return new UserDTO(updateEntity);
     }
 
     @Override
@@ -118,7 +128,7 @@ public class UserServiceImpl implements UserService {
         if (email == null) {
             throw new UserException(MessageCode.EMAIL_USER_NOT_FOUND);
         } else {
-            return userRepository.existByEmail(email);
+            return userRepository.existsByEmail(email);
         }
     }
 
@@ -127,8 +137,7 @@ public class UserServiceImpl implements UserService {
         if (username == null) {
             throw new UserException(MessageCode.USERNAME_NOT_FOUND);
         } else {
-            userRepository.findByUsername(username);
-            return true;
+          return  userRepository.existsByUsername(username);
         }
     }
 
@@ -142,18 +151,5 @@ public class UserServiceImpl implements UserService {
             userRepository.deleteById(userId);
             return true;
         }
-    }
-
-    @Override
-    public UserDTO convertTo(UserEntity userEntity) {
-        return new UserDTO(
-                userEntity.getUserId(),
-                userEntity.getName(),
-                userEntity.getLastname(),
-                userEntity.getAddress(),
-                userEntity.getEmail(),
-                userEntity.getUsername(),
-                userEntity.getPassword()
-        );
     }
 }

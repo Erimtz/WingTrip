@@ -7,7 +7,7 @@ import java.time.ZoneId;
 public class DateTimeUtil {
 
     public static LocalDate now() {
-        return LocalDate.now(ZoneId.of("America/Mexico/Ciudad_De_Mexico"));
+        return LocalDate.now(ZoneId.of("America/Mexico_City"));
     }
 
     public static LocalDateTime nowDateTime() {
