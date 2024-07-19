@@ -2,12 +2,17 @@ package com.wingtrip.account.service.impl;
 
 import com.wingtrip.account.controller.request.AccountRequest;
 import com.wingtrip.account.dto.AccountDTO;
+import com.wingtrip.account.dto.AccountUserDTO;
 import com.wingtrip.account.exception.AccountException;
 import com.wingtrip.account.exception.MessageCode;
 import com.wingtrip.account.model.AccountEntity;
 import com.wingtrip.account.repository.AccountRepository;
 import com.wingtrip.account.service.AccountService;
+import com.wingtrip.user.client.UserFeignClient;
+import com.wingtrip.user.dto.UserDTO;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +25,8 @@ import java.util.stream.Collectors;
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
+
+    private final UserFeignClient userFeignClient;
 
     @Override
     public List<AccountDTO> getAllAccounts() {
@@ -107,6 +114,48 @@ public class AccountServiceImpl implements AccountService {
             return true;
         } catch (Exception e) {
             throw new AccountException(MessageCode.ACCOUNT_DELETE_FAILED);
+        }
+    }
+
+    public AccountDTO getAccountByUserId(String username) throws AccountException {
+        try {
+            if (username == null || username.isEmpty()) {
+                throw new AccountException(MessageCode.INVALID_USERNAME);
+            }
+
+            UserDTO userDTO = userFeignClient.getUserByUsername(username);
+            AccountEntity accountEntity = accountRepository.findById(userDTO.getId())
+                    .orElseThrow(() -> new AccountException(MessageCode.ACCOUNT_NOT_FOUND));
+
+            return new AccountDTO(accountEntity);
+
+        } catch (FeignException e) {
+            throw new AccountException(MessageCode.USER_NOT_FOUND);
+        } catch (DataIntegrityViolationException e) {
+            throw new AccountException(MessageCode.DUPLICATE_DOCUMENT);
+        }
+    }
+
+    public AccountDTO getBookingIdByUserId(Long userId) throws AccountException {
+        if (userId == null) {
+            throw new AccountException(MessageCode.INVALID_USER_ID);
+        }
+
+        try {
+            Long bookingId = userFeignClient.getBookingId(userId);
+            AccountEntity accountEntity = accountRepository.findById(userId)
+                    .orElseThrow(() -> new AccountException(MessageCode.ACCOUNT_NOT_FOUND));
+
+            accountEntity.setBookingId(bookingId);
+            accountRepository.save(accountEntity);
+
+
+            UserDTO userDTO = userFeignClient.getUserById(userId);
+            AccountUserDTO accountUserDTO = new AccountUserDTO(userDTO.getId());
+            return new AccountDTO(accountUserDTO);
+
+        } catch (FeignException e) {
+            throw new AccountException(MessageCode.ACCOUNT_BOOKING_NOT_FOUND);
         }
     }
 }

@@ -14,14 +14,17 @@ public class AccountDTO {
 
     private String document;
 
-    private UserDTO user;
+    private AccountUserDTO user;
 
     private Long bookingId;
 
     public AccountDTO(AccountEntity accountEntity) {
             this.accountId = accountEntity.getAccountId();
             this.document = accountEntity.getDocument();
-            this.user = new UserDTO(accountEntity.getUserId());
+            this.user = new AccountUserDTO(accountEntity.getUserId());
             this.bookingId = accountEntity.getBookingId();
+    }
+
+    public AccountDTO(AccountUserDTO accountUserDTO) {
     }
 }

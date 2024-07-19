@@ -7,14 +7,14 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO {
+public class AccountUserDTO {
         private Long id;
         private String name;
         private String lastname;
         private String email;
 
 
-        public UserDTO(Long value) {
+        public AccountUserDTO(Long value) {
                 this.id = value;
         }
 }

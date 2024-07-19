@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -90,6 +91,26 @@ public class AccountController  {
             log.info("Delete by user ID successfully with data: {}", id);
             return ResponseEntity.noContent().build();
         } else throw  new AccountException(MessageCode.ACCOUNT_BOOKING_NOT_FOUND);
+    }
+
+    @Operation(summary = "Get account by user ID")
+    @GetMapping("/get-account-username/{username}")
+    public ResponseEntity<AccountResponse> getAccountByUserId(@Valid @PathVariable String username) throws AccountException {
+        AccountDTO accountDTO = accountServiceImpl.getAccountByUserId(username);
+        AccountResponse accountResponse = accountMapper.toResponse(accountDTO);
+        accountResponse.setMessage("Find account with user feign with username: " + username);
+
+        return ResponseEntity.ok(accountResponse);
+    }
+
+    @Operation(summary = "Get booking by user ID")
+    @GetMapping("/get-booking-id/{userId}")
+    public ResponseEntity<AccountResponse> bookingByUserId(@PathVariable Long id) throws AccountException {
+        AccountDTO accountDTO = accountServiceImpl.getBookingIdByUserId(id);
+        AccountResponse accountResponse = accountMapper.toResponse(accountDTO);
+        accountResponse.setMessage("Find booking with user feign byID: " + id);
+
+        return ResponseEntity.ok(accountResponse);
     }
 }
 

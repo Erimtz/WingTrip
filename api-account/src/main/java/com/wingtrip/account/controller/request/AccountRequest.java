@@ -1,6 +1,6 @@
 package com.wingtrip.account.controller.request;
 
-import com.wingtrip.account.dto.UserDTO;
+import com.wingtrip.account.dto.AccountUserDTO;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +20,7 @@ public class AccountRequest {
     private String document;
 
     @Valid
-    private UserDTO user;
+    private AccountUserDTO user;
 
     private Long bookingId;
 }

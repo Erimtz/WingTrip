@@ -8,6 +8,7 @@ com\wingtrip\account\util\DateTimeUtil.class
 com\wingtrip\account\service\AccountService.class
 com\wingtrip\account\controller\AccountController.class
 com\wingtrip\account\controller\mapper\AccountMapper.class
+com\wingtrip\account\dto\AccountUserDTO.class
 com\wingtrip\account\exception\MessageCode.class
 com\wingtrip\account\controller\mapper\AccountMapperImpl.class
 com\wingtrip\account\dto\AccountDTO.class
@@ -15,4 +16,3 @@ com\wingtrip\account\exception\AccountException.class
 com\wingtrip\account\model\AccountEntity$AccountEntityBuilder.class
 com\wingtrip\account\constant\Constant.class
 com\wingtrip\account\ApiAccountApplication.class
-com\wingtrip\account\dto\UserDTO.class
