@@ -38,16 +38,30 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDTO createAccount(AccountDTO accountDTO) throws AccountException {
         try {
+            // Llamar al microservicio de `api-user` para obtener los detalles completos del usuario
+            UserDTO userDTO = userFeignClient.getUserById(accountDTO.getUser().getId());
+
+            // Mapear el UserDTO a AccountUserDTO
+            AccountUserDTO accountUserDTO = new AccountUserDTO(
+                    userDTO.getId(),
+                    userDTO.getName(),
+                    userDTO.getLastname(),
+                    userDTO.getEmail()
+            );
+
             AccountEntity accountEntity = AccountEntity.builder()
                     .document(accountDTO.getDocument())
-                    .userId(accountDTO.getUser().getId())
+                    .userId(accountUserDTO.getId())
                     .bookingId(accountDTO.getBookingId())
                     .build();
-            AccountEntity saveEntity = accountRepository.save(accountEntity);
-            // Llamar al microservicio de `api-user` para obtener los detalles del usuario completo
-            // utilizando Feign Client o RestTemplate y asignar los detalles del usuario completo al DTO.
 
-            return new AccountDTO(saveEntity);
+            AccountEntity saveEntity = accountRepository.save(accountEntity);
+
+            // Crear el AccountDTO con el AccountUserDTO completo
+            AccountDTO createAccountDTO = new AccountDTO(saveEntity);
+            createAccountDTO.setUser(accountUserDTO);
+
+            return createAccountDTO;
         } catch (Exception e) {
             e.printStackTrace();
             throw new AccountException(MessageCode.ACCOUNT_NOT_CREATE);

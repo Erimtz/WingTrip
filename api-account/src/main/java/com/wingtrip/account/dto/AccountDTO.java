@@ -27,4 +27,13 @@ public class AccountDTO {
 
     public AccountDTO(AccountUserDTO accountUserDTO) {
     }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
+    }
+
 }

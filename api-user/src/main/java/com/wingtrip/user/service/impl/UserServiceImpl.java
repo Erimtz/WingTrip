@@ -152,4 +152,10 @@ public class UserServiceImpl implements UserService {
             return true;
         }
     }
+
+    public UserDTO getUserById(Long id) throws UserException {
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new UserException(MessageCode.USER_NOT_FOUND));
+        return new UserDTO(userEntity);
+    }
 }

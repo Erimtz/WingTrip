@@ -5,14 +5,15 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "api-user", url = "http://localhost:8088")
+@FeignClient(name = "api-user", url = "http://localhost:8087")
 public interface UserFeignClient {
 
-    @GetMapping("/users/username/{username}")
+    @GetMapping("/api/v1/user/{id}")
+    UserDTO getUserById(@PathVariable Long id);
+
+    @GetMapping("/api/v1/user/{username}")
     UserDTO getUserByUsername(@PathVariable String username);
 
-    @GetMapping("/users/id/{userId}")
-    UserDTO getUserById(@PathVariable Long userId);
-    @GetMapping("/users/booking/{userId}")
-    Long getBookingId(Long userId);
+    @GetMapping("/api/v1/user/{userId}")
+    Long getBookingId(@PathVariable Long userId);
 }
