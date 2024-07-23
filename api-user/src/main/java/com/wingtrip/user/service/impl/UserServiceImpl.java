@@ -23,7 +23,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(UserDTO::new)
+                .map(userEntity -> {
+                    UserDTO userDTO = new UserDTO(userEntity);
+                    userDTO.setId(userEntity.getUserId());
+                    return userDTO;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -153,9 +157,21 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public UserDTO getUserById(Long id) throws UserException {
-        UserEntity userEntity = userRepository.findById(id)
+    public UserDTO getUserById(Long userId) throws UserException {
+        UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(MessageCode.USER_ID_NOT_FOUND));
+        return new UserDTO(userEntity);
+    }
+
+    public UserDTO getUserByUsername(String username) throws UserException {
+        UserEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserException(MessageCode.USER_NOT_FOUND));
+        return new UserDTO(userEntity);
+    }
+
+    public UserDTO getBookingId(Long userId) throws UserException {
+        UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(MessageCode.USER_ID_NOT_FOUND));
         return new UserDTO(userEntity);
     }
 }

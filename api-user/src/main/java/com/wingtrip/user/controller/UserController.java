@@ -3,6 +3,7 @@ package com.wingtrip.user.controller;
 import com.wingtrip.user.controller.mapper.UserMapper;
 import com.wingtrip.user.controller.request.UserRequest;
 import com.wingtrip.user.controller.response.UserResponse;
+import com.wingtrip.user.controller.response.UserResponseWithoutMessage;
 import com.wingtrip.user.dto.UserDTO;
 import com.wingtrip.user.exception.MessageCode;
 import com.wingtrip.user.exception.UserException;
@@ -11,12 +12,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Tag(name = "User API", description = "API for managing users")
@@ -31,8 +32,12 @@ public class UserController {
 
     @Operation(summary = "Get all the users")
     @GetMapping("/get-all")
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<List<UserResponseWithoutMessage>> getAllUsers() {
+        List<UserDTO> userDTOS = userService.getAllUsers();
+        List<UserResponseWithoutMessage> userResponses = userDTOS.stream()
+                .map(userMapper::toResponseWithoutMessage)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(userResponses);
     }
 
     @Operation(summary = "Created new user")
@@ -69,7 +74,7 @@ public class UserController {
     }
 
     @Operation(summary = "Search user by ID")
-    @GetMapping("/get/{id}")
+    @GetMapping("/find/{id}")
     public ResponseEntity<UserResponse> findUserById(@PathVariable Long id) throws UserException {
         UserDTO userDTO = userService.findUserById(id);
         UserResponse userResponse = userMapper.toResponse(userDTO);
@@ -115,13 +120,37 @@ public class UserController {
 
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) throws UserException {
+    @Operation(summary = "Find user by ID with feign")
+    @GetMapping("/feign-user-id/{id}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) throws UserException {
         UserDTO userDTO = userService.getUserById(id);
+        UserResponse userResponse = userMapper.toResponse(userDTO);
         if (userDTO != null) {
-            return ResponseEntity.ok(userDTO);
+            return ResponseEntity.ok(userResponse);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            throw new UserException(MessageCode.USER_ID_NOT_FOUND);
+        }
+    }
+    @Operation(summary = "Find user by username with feign")
+    @GetMapping("/feign-username/{username}")
+    public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) throws UserException {
+        UserDTO userDTO = userService.getUserByUsername(username);
+        UserResponse userResponse = userMapper.toResponse(userDTO);
+        if (userDTO != null) {
+            return ResponseEntity.ok(userResponse);
+        } else {
+            throw new UserException(MessageCode.USER_NOT_FOUND);
+        }
+    }
+    @Operation(summary = "Find booking ID by user ID with feign")
+    @GetMapping("/feign-booking/{id}")
+    public ResponseEntity<UserResponse> getBookingId(@PathVariable Long id) throws UserException{
+        UserDTO userDTO = userService.getBookingId(id);
+        UserResponse userResponse = userMapper.toResponse(userDTO);
+        if (userDTO != null) {
+            return ResponseEntity.ok(userResponse);
+        } else {
+            throw new UserException(MessageCode.USER_ID_NOT_FOUND);
         }
     }
 }

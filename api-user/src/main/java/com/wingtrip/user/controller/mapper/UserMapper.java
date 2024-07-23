@@ -2,6 +2,7 @@ package com.wingtrip.user.controller.mapper;
 
 import com.wingtrip.user.controller.request.UserRequest;
 import com.wingtrip.user.controller.response.UserResponse;
+import com.wingtrip.user.controller.response.UserResponseWithoutMessage;
 import com.wingtrip.user.dto.UserDTO;
 import org.mapstruct.Mapper;
 
@@ -10,4 +11,6 @@ public interface UserMapper {
     UserDTO toRequest(UserRequest request);
 
     UserResponse toResponse(UserDTO userDTO);
+
+    UserResponseWithoutMessage toResponseWithoutMessage(UserDTO userDTO);
 }
