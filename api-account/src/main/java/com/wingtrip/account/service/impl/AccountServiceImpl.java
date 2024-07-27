@@ -31,7 +31,23 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<AccountDTO> getAllAccounts() {
         return accountRepository.findAll().stream()
-                .map(AccountDTO::new)
+                .map(accountEntity -> {
+                    AccountDTO accountDTO = new AccountDTO(accountEntity);
+
+                    //Llamar al microservicio api-user para buscar el usuario
+                    UserDTO userDTO = userFeignClient.getUserById(accountDTO.getUser().getId());
+
+                    //Mapear el UserDTO a AccountDTO
+                    AccountUserDTO accountUserDTO = new AccountUserDTO(
+                            userDTO.getId(),
+                            userDTO.getName(),
+                            userDTO.getLastname(),
+                            userDTO.getEmail()
+                    );
+
+                    accountDTO.setUser(accountUserDTO);
+                    return accountDTO;
+                })
                 .collect(Collectors.toList());
     }
 

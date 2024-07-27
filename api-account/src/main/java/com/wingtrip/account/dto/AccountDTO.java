@@ -1,9 +1,12 @@
 package com.wingtrip.account.dto;
 
 import com.wingtrip.account.model.AccountEntity;
+import com.wingtrip.user.dto.UserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Locale;
 
 @Data
 @AllArgsConstructor
@@ -34,6 +37,16 @@ public class AccountDTO {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
+    }
+
+    //Método para actualizar el usuario
+    public void setUserDetails(UserDTO userDTO) {
+        this.user = new AccountUserDTO(
+                userDTO.getId(),
+                userDTO.getName(),
+                userDTO.getLastname(),
+                userDTO.getEmail()
+        );
     }
 
 }
