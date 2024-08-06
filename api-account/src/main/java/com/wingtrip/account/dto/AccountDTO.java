@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Locale;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,6 +27,13 @@ public class AccountDTO {
     }
 
     public AccountDTO(AccountUserDTO accountUserDTO) {
+    }
+
+    public AccountDTO(AccountEntity accountEntity, AccountUserDTO user) {
+        this.accountId = accountEntity.getAccountId();
+        this.document = accountEntity.getDocument();
+        this.user = user;
+        this.bookingId = accountEntity.getBookingId();
     }
 
     public Long getAccountId() {

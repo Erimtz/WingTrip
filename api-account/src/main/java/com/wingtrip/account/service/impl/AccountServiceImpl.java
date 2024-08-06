@@ -8,10 +8,11 @@ import com.wingtrip.account.exception.MessageCode;
 import com.wingtrip.account.model.AccountEntity;
 import com.wingtrip.account.repository.AccountRepository;
 import com.wingtrip.account.service.AccountService;
-import com.wingtrip.user.client.UserFeignClient;
+import com.wingtrip.account.client.UserFeignClient;
 import com.wingtrip.user.dto.UserDTO;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -54,16 +55,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDTO createAccount(AccountDTO accountDTO) throws AccountException {
         try {
-            // Llamar al microservicio de `api-user` para obtener los detalles completos del usuario
+            // Llamar al microservicio de api-user`para obtener los detalles completos del usuario
             UserDTO userDTO = userFeignClient.getUserById(accountDTO.getUser().getId());
 
             // Mapear el UserDTO a AccountUserDTO
-            AccountUserDTO accountUserDTO = new AccountUserDTO(
-                    userDTO.getId(),
-                    userDTO.getName(),
-                    userDTO.getLastname(),
-                    userDTO.getEmail()
-            );
+            AccountUserDTO accountUserDTO = convertAccountUserDTO(userDTO);
 
             AccountEntity accountEntity = AccountEntity.builder()
                     .document(accountDTO.getDocument())
@@ -89,11 +85,19 @@ public class AccountServiceImpl implements AccountService {
         if (userId == null) {
             throw new AccountException(MessageCode.ACCOUNT_NULL);
         }
+        log.info("Searching for account with userId: {}", userId);
 
-        Optional<AccountEntity> entityOptional = accountRepository.findById(userId);
+        Optional<AccountEntity> entityOptional = accountRepository.findByUserId(userId);
         if (entityOptional.isPresent() ) {
-            return new AccountDTO(entityOptional.get());
+            log.info("Account found: {}", entityOptional.get());
+
+            UserDTO userDTO = userFeignClient.getUserById(userId);
+            log.info("User fetched from Feign Client: {}", userDTO);
+
+            AccountUserDTO accountUserDTO = convertAccountUserDTO(userDTO);
+            return new AccountDTO(entityOptional.get(), accountUserDTO);
         } else {
+            log.error("Account not found for userId: {}", userId);
             throw new AccountException(MessageCode.ACCOUNT_NOT_EXIST);
         }
     }
@@ -109,7 +113,11 @@ public class AccountServiceImpl implements AccountService {
             throw new AccountException(MessageCode.ACCOUNT_NOT_FOUND);
         } else {
             AccountEntity accountEntity = optionalAccount.get();
-            return new AccountDTO(accountEntity);
+
+            UserDTO userDTO = userFeignClient.getBookingId(bookingId);
+
+            AccountUserDTO accountUserDTO = convertAccountUserDTO(userDTO);
+            return new AccountDTO(accountEntity, accountUserDTO);
         }
     }
 
@@ -129,8 +137,28 @@ public class AccountServiceImpl implements AccountService {
         accountEntity1.setUserId(accountRequest.getUser().getId());
         accountEntity1.setBookingId(accountRequest.getBookingId());
 
+        // Llamada al Feign Client para obtener el usuario y actualizarlo
+        UserDTO userDTO = userFeignClient.getUserById(accountRequest.getUser().getId());
+
+        if (accountRequest.getUser().getName() != null) {
+            userDTO.setName(accountRequest.getUser().getName());
+        }
+        if (accountRequest.getUser().getLastname() != null) {
+            userDTO.setLastname(accountRequest.getUser().getLastname());
+        }
+        if (accountRequest.getUser().getEmail() != null) {
+            userDTO.setEmail(accountRequest.getUser().getEmail());
+        }
+
+        //Llamada al Feign para actualizar el usuario
+        userFeignClient.updateUser(userDTO.getId(), userDTO);
+
         AccountEntity updateEntity = accountRepository.save(accountEntity1);
-        return new AccountDTO(updateEntity);
+
+        UserDTO updateUserDTO = userFeignClient.getUserById(accountRequest.getUser().getId());
+        AccountUserDTO accountUserDTO = convertAccountUserDTO(updateUserDTO);
+
+        return new AccountDTO(updateEntity, accountUserDTO);
     }
 
     @Override
@@ -172,7 +200,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         try {
-            Long bookingId = userFeignClient.getBookingId(userId);
+            Long bookingId = userFeignClient.getBookingId(userId).getId();
             AccountEntity accountEntity = accountRepository.findById(userId)
                     .orElseThrow(() -> new AccountException(MessageCode.ACCOUNT_NOT_FOUND));
 
@@ -187,5 +215,14 @@ public class AccountServiceImpl implements AccountService {
         } catch (FeignException e) {
             throw new AccountException(MessageCode.ACCOUNT_BOOKING_NOT_FOUND);
         }
+    }
+
+    private AccountUserDTO convertAccountUserDTO(UserDTO userDTO) {
+        return new AccountUserDTO(
+                userDTO.getId(),
+                userDTO.getName(),
+                userDTO.getLastname(),
+                userDTO.getEmail()
+        );
     }
 }

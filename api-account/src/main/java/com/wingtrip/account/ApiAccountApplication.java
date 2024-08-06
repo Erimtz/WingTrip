@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@EnableFeignClients("com.wingtrip.user.client")
+@EnableFeignClients("com.wingtrip.account.client")
 @EnableDiscoveryClient
 @ComponentScan(basePackages = "com.wingtrip.account")
 public class ApiAccountApplication {
