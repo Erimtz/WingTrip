@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Tag(name = "User API", description = "API for managing users")
+@Tag(name = "User API")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/api/v1/user")

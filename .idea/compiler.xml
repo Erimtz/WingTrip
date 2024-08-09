@@ -10,17 +10,6 @@
         <module name="config-server" />
         <module name="eureka-server" />
       </profile>
-      <profile name="Annotation profile for api-account" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.3.Final/mapstruct-processor-1.5.3.Final.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.3.Final/mapstruct-1.5.3.Final.jar" />
-        </processorPath>
-        <module name="api-account" />
-      </profile>
       <profile name="Annotation profile for api-user" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -43,6 +32,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="api-account" target="17" />
       <module name="api-booking" target="17" />
       <module name="api-flight" target="17" />
       <module name="api-flight-detail" target="17" />

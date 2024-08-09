@@ -19,7 +19,10 @@ spring:
     api-docs:
       path: /v3/api-user
     swagger-ui:
-      path: /swagger-ui.html
+      path: /api-docs/swagger-ui.html
+      enable: true
+    show-actuator: true
+    packages-to-scan: com.wingtrip.user.controller
 
   eureka:
     client:
