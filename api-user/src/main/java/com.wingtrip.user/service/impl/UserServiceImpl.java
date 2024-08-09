@@ -156,43 +156,4 @@ public class UserServiceImpl implements UserService {
             return true;
         }
     }
-
-    public UserDTO getUserById(Long userId) throws UserException {
-        UserEntity userEntity = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(MessageCode.USER_ID_NOT_FOUND));
-        return new UserDTO(userEntity);
-    }
-
-    public UserDTO getUserByUsername(String username) throws UserException {
-        UserEntity userEntity = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserException(MessageCode.USER_NOT_FOUND));
-        return new UserDTO(userEntity);
-    }
-
-    public UserDTO getBookingId(Long userId) throws UserException {
-        UserEntity userEntity = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(MessageCode.USER_ID_NOT_FOUND));
-        return new UserDTO(userEntity);
-    }
-
-    public UserDTO updateUser(Long userId, UserDTO userDTO) throws UserException {
-        Optional<UserEntity> userEntity = userRepository.findById(userId);
-        if (userEntity.isEmpty()) {
-            throw  new UserException(MessageCode.USER_NOT_FOUND);
-        }
-
-        UserEntity userEntity1 = userEntity.get();
-        if (userDTO.getName() != null) {
-            userEntity1.setName(userDTO.getName());
-        }
-        if (userDTO.getLastname() != null) {
-            userEntity1.setLastname(userDTO.getLastname());
-        }
-        if (userDTO.getEmail() != null) {
-            userEntity1.setEmail(userDTO.getEmail());
-        }
-
-        userRepository.save(userEntity1);
-        return new UserDTO(userEntity1);
-    }
 }

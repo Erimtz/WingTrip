@@ -119,45 +119,4 @@ public class UserController {
         }
 
     }
-
-    @Operation(summary = "Find user by ID with feign")
-    @GetMapping("/feign-user-id/{id}")
-    public ResponseEntity<UserResponse> getUserByIdFeign(@PathVariable Long id) throws UserException {
-        UserDTO userDTO = userService.getUserById(id);
-        UserResponse userResponse = userMapper.toResponse(userDTO);
-        if (userDTO != null) {
-            return ResponseEntity.ok(userResponse);
-        } else {
-            throw new UserException(MessageCode.USER_ID_NOT_FOUND);
-        }
-    }
-    @Operation(summary = "Find user by username with feign")
-    @GetMapping("/feign-username/{username}")
-    public ResponseEntity<UserResponse> getUserByUsernameFeign(@PathVariable String username) throws UserException {
-        UserDTO userDTO = userService.getUserByUsername(username);
-        UserResponse userResponse = userMapper.toResponse(userDTO);
-        if (userDTO != null) {
-            return ResponseEntity.ok(userResponse);
-        } else {
-            throw new UserException(MessageCode.USER_NOT_FOUND);
-        }
-    }
-    @Operation(summary = "Find booking ID by user ID with feign")
-    @GetMapping("/feign-booking/{id}")
-    public ResponseEntity<UserResponse> getBookingIdFeign(@PathVariable Long id) throws UserException{
-        UserDTO userDTO = userService.getBookingId(id);
-        UserResponse userResponse = userMapper.toResponse(userDTO);
-        if (userDTO != null) {
-            return ResponseEntity.ok(userResponse);
-        } else {
-            throw new UserException(MessageCode.USER_ID_NOT_FOUND);
-        }
-    }
-    @Operation(summary = "Update user details with feign")
-    @PutMapping("/feign-update-user/{id}")
-    public ResponseEntity<UserResponse> updateUserFeign(@PathVariable Long id, @RequestBody UserDTO userDTO) throws UserException {
-        UserDTO updateUserDTO = userService.updateUser(id, userDTO);
-        UserResponse userResponse = userMapper.toResponse(updateUserDTO);
-        return ResponseEntity.ok(userResponse);
-    }
 }
