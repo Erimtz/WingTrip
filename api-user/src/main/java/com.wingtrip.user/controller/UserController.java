@@ -43,23 +43,28 @@ public class UserController {
     @Operation(summary = "Created new user")
     @PostMapping("/create")
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) throws UserException {
-        //Mappear de request a dto
-        UserDTO dtoToRequest = userMapper.toRequest(userRequest);
+        try {
+            //Mappear de request a dto
+            UserDTO dtoToRequest = userMapper.toRequest(userRequest);
 
-        log.info("Checking if email exists {}:", dtoToRequest.getEmail());
-        if (userService.existByEmail(dtoToRequest.getEmail())) {
-            throw new UserException(MessageCode.EMAIL_CREATE_BEFORE);
+            log.info("Checking if email exists {}:", dtoToRequest.getEmail());
+            if (userService.existByEmail(dtoToRequest.getEmail())) {
+                throw new UserException(MessageCode.EMAIL_CREATE_BEFORE);
+            }
+
+            if (userService.existByUsername(dtoToRequest.getUsername())) {
+                throw new UserException(MessageCode.USERNAME_CREATE_BEFORE);
+            }
+            UserDTO createdUser = userService.createUser(dtoToRequest);
+            UserResponse userResponse = userMapper.toResponse(createdUser);
+            userResponse.setMessage("¡Created user successfully!");
+
+            log.info("Created user successfully with data: {}", userResponse);
+            return ResponseEntity.ok(userResponse);
+        } catch (Exception e) {
+            throw new UserException(MessageCode.USER_NOT_CREATE);
         }
 
-        if (userService.existByUsername(dtoToRequest.getUsername())) {
-            throw new UserException(MessageCode.USERNAME_CREATE_BEFORE);
-        }
-        UserDTO createdUser = userService.createUser(dtoToRequest);
-        UserResponse userResponse = userMapper.toResponse(createdUser);
-        userResponse.setMessage("¡Created user successfully!");
-
-        log.info("Created user successfully with data: {}", userResponse);
-        return ResponseEntity.ok(userResponse);
     }
 
     @Operation(summary = "Search user by username")
