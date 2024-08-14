@@ -45,7 +45,7 @@ public class UserController {
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) throws UserException {
         try {
             //Mappear de request a dto
-            UserDTO dtoToRequest = userMapper.toRequest(userRequest);
+            UserDTO dtoToRequest = userMapper.toDTO(userRequest);
 
             log.info("Checking if email exists {}:", dtoToRequest.getEmail());
             if (userService.existByEmail(dtoToRequest.getEmail())) {

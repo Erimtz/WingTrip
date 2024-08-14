@@ -87,7 +87,7 @@ class UserControllerTest {
         String userJson = mapper.writeValueAsString(userRequest);
 
         when(userMapper.toResponse(userDTO)).thenReturn(userResponse);
-        when(userMapper.toRequest(userRequest)).thenReturn(userDTO1);
+        when(userMapper.toDTO(userRequest)).thenReturn(userDTO1);
         when(userService.existByEmail(any())).thenReturn(false);
         when(userService.existByUsername(any())).thenReturn(false);
         when(userService.createUser(userDTO)).thenReturn(userDTO1);
