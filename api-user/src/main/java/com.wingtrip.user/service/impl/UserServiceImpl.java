@@ -100,7 +100,6 @@ public class UserServiceImpl implements UserService {
 
         UserEntity userEntity1 = userRepository.save(userEntity);
 
-
         return new UserDTO(userEntity1);
     }
 
